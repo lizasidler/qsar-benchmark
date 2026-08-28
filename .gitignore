@@ -1,0 +1,6 @@
+# Python cache & environments
+__pycache__/
+
+# Large model weights & datasets
+*.db
+DB/
