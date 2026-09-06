@@ -5,7 +5,7 @@ Benchmarking classical ML and GNN approaches (Random Forest, MLP, GCN) for molec
 
 4 different ML apploaches were investigated:
 
--- for both regression and classification, Random Forest and XGboost were trained (using Ski and XGBoost Python librarier)]
+-- for both regression and classification, Random Forest and XGboost were trained (using Ski and XGBoost Python librarier)] 
 -- for regression, simple MLP NN was constructed and trained
 -- for regression, GNN was constructed and different models were testes (...) (using PyTorch and PyTorch Geometric)
 
