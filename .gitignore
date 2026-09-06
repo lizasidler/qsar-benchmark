@@ -3,4 +3,5 @@ __pycache__/
 
 # Large model weights & datasets
 *.db
-DB/
+DB/*.db
+data_collection/

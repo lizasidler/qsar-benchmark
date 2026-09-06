@@ -1,28 +1,17 @@
 import numpy as np
 import pandas as pd
 import duckdb
-import matplotlib.pyplot as plt
 
 import rdkit.Chem as Chem
-import rdkit.Chem.Draw as Draw
 from rdkit.Chem import rdFingerprintGenerator as fp
 from rdkit.Chem import Descriptors as desc
-
-
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.tree import plot_tree
-
-from sklearn.feature_selection import VarianceThreshold
+from rdkit.ML.Descriptors import MoleculeDescriptors
 from rdkit.Chem import MolSurf
 from rdkit.Chem import Crippen 
-from rdkit.Chem import Descriptors as desc
 
-from rdkit.ML.Descriptors import MoleculeDescriptors
 
 with open('fetch_db_data.sql', 'r') as f:
 	sql_comm = f.read()
-
 
 con = duckdb.connect()
 
@@ -47,27 +36,21 @@ vsa_names = [name for name, _ in desc._descList
 calculator = MoleculeDescriptors.MolecularDescriptorCalculator(vsa_names)
 vsa_features = np.array([calculator.CalcDescriptors(m) for m in df['mol']])
 
-fp = np.vstack(df['fp'].values)
+mol_desc = np.hstack([df[['max_ch', 'min_ch', 'mol_w', 'log_p', 'tpsa']].values, vsa_features])
+valid_mol = ~np.isnan(mol_desc).any(axis=1)
 
-selector = VarianceThreshold(threshold=0.01)
-fp_filtr = selector.fit_transform(fp)
-print(fp_filtr.shape)
 
-mol_rep = np.hstack([fp_filtr, df[['max_ch', 'min_ch', 'mol_w', 'log_p', 'tpsa']].values, vsa_features])
-activity = np.vstack(df['av_act'])
+fp = np.vstack(df['fp'].values)[valid_mol]
+np.savetxt('fp_only.dat', fp)
 
-clf = RandomForestRegressor(n_estimators=40, random_state=42, max_depth=50, min_samples_leaf=3)
+activity = np.vstack(df['av_act'])[valid_mol]
+np.savetxt('activity.dat', activity)
 
-fp_train, fp_test, act_train, act_test = train_test_split(
-    mol_rep, activity, 
-    test_size=0.10,      # 10% held out for evaluation (90% for training)
-    random_state=42      # Ensures reproducible splitting
-)
+mol_desc = mol_desc[valid_mol]
+np.savetxt('mol_desc.dat', mol_desc)
 
-clf.fit(fp_train, act_train)
+mol_rep = np.hstack([fp, mol_desc])
+np.savetxt('full_mol_rep.dat', mol_rep)
 
-train_score = clf.score(fp_train, act_train)
-test_score = clf.score(fp_test, act_test)
 
-print(f"Train Score: {train_score:.2f}")
-print(f"Test Score:  {test_score:.2f}")
+

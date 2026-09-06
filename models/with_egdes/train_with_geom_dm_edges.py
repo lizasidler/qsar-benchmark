@@ -4,7 +4,7 @@ import pandas as pd
 import duckdb
 
 import torch
-import torch_GCN
+import torch_Gate
 from torch_geometric.loader import DataLoader
 from torch_geometric.data import Data
 
@@ -20,8 +20,14 @@ from rdkit.Chem import Crippen
 from rdkit.Chem import Descriptors as desc
 from rdkit.ML.Descriptors import MoleculeDescriptors
 from rdkit.Chem import rdFingerprintGenerator as fp
+from rdkit.Chem.rdPartialCharges import ComputeGasteigerCharges
 
-
+BOND_MAP = {
+    'SINGLE': 1,
+    'DOUBLE': 2,
+    'TRIPLE': 3,
+    'AROMATIC': 4,
+}
 
 
 with open('fetch_db_data.sql', 'r') as f:
@@ -41,25 +47,60 @@ df = con.execute(sql_comm).df()
 df['mol'] = df['canonical_smiles'].apply(Chem.MolFromSmiles)
 
 graphs_list = []
+at_degree_full = []
 
 for mol, activity in zip(df['mol'], df['av_act']):
     #Chem.AddHs(mol)
     #Chem.RemoveHs(mol)
 
-    at_id_list = []
+    
+    at_degree_list = []
+    mol_feat_list = []
+
+    ComputeGasteigerCharges(mol)
 
     for atom in mol.GetAtoms():
+
+        p = 1
+
+        at_feat_list = []
+
+        deg = atom.GetDegree() # Number of directly bonded neighbors.
+        at_degree_list.append(deg)
+
         at_nums = atom.GetAtomicNum()
-        at_id_list.append(at_nums)
+        at_feat_list.append(at_nums)
+        at_feat_list.append(deg)
+        hydrid = atom.GetHybridization() # Returns RDKit hybridization type (e.g., sp ...)
+        at_feat_list.append(int(hydrid))
+        p_charge = atom.GetProp("_GasteigerCharge")
+        at_feat_list.append(float(p_charge))
+        charge = atom.GetFormalCharge() # Formal charge on the atom.
+        at_feat_list.append(charge)
+        arom = atom.GetIsAromatic() # Boolean indicating aromaticity.
+        at_feat_list.append(arom*1.0)
+        Hcount = atom.GetTotalNumHs() # Count of connected hydrogens.
+        at_feat_list.append(Hcount)
 
-        #atom.GetDegree() — Number of directly bonded neighbors.
-        #atom.GetHybridization() — Returns RDKit hybridization type (e.g., sp 
-        #atom.GetFormalCharge() — Formal charge on the atom.
-        #atom.GetIsAromatic() — Boolean indicating aromaticity.
-        #atom.GetTotalNumHs() — Count of connected hydrogens.
+        if np.isnan(at_feat_list).any():
+            print('oops',at_feat_list)
+            p=0
+            break
 
-    at_id_tensor = torch.tensor(at_id_list, dtype=torch.float32)
+        mol_feat_list.append(at_feat_list)
+
+
+    if p==0:
+        continue
+
+    mol_feat_tensor = torch.tensor(mol_feat_list, dtype=torch.float32)
+
+    if np.isnan(mol_feat_tensor).any():
+            print('oops')
+
+    at_degree_full.append(at_degree_list)
     edge_id_list = []
+    edge_type_list = []
 
     for bond in mol.GetBonds():
         id_1 = bond.GetBeginAtomIdx() #— Source node index.
@@ -67,26 +108,30 @@ for mol, activity in zip(df['mol'], df['av_act']):
         edge_id_list.append([id_1, id_2])
         edge_id_list.append([id_2, id_1])
 
-        #bond.GetBondType()
+        edge_type = BOND_MAP[str(bond.GetBondType())]
+        edge_type_list.append(edge_type)
+        edge_type_list.append(edge_type)
+        print(edge_type)
 
     edge_id_tensor = torch.tensor(edge_id_list, dtype=torch.long).t().contiguous()
+    edge_type_tensor = torch.tensor(edge_type_list, dtype=torch.long).t().contiguous()
 
-    graph = Data(x = at_id_tensor, edge_index = edge_id_tensor, y = torch.tensor([[activity]], dtype=torch.float32))
+    graph = Data(x = mol_feat_tensor, edge_index = edge_id_tensor, edge_attr=edge_type_tensor, y = torch.tensor([[activity]],  dtype=torch.float32))
     graph.validate(raise_on_error=True)
     graphs_list.append(graph)
 
-
+torch.save(graphs_list, 'gnn_dt_feat_edges.pt')
 
 #valid_mask ?
 
-graphs_train, graphs_val = train_test_split(
-    graphs_list, 
+graphs_train, graphs_val, at_degree_train, at_degree_val = train_test_split(
+    graphs_list, at_degree_full,
     test_size=0.10,      # 10% held out for evaluation (90% for training)
     random_state=42      # Ensures reproducible splitting
 )
 
 if torch.backends.mps.is_available():
-    device = torch.device("mps")
+    device = torch.device("cpu")
     print("Using Apple Silicon GPU (MPS)")
 else:
     device = torch.device("cpu")
@@ -106,8 +151,17 @@ val_loader = DataLoader(
     shuffle=True   
 )
 
+at_degree_train = [i for mol in at_degree_train for i in mol]
+at_degree_val = [i for mol in at_degree_val for i in mol]
+
+at_degree_tensor = torch.tensor(at_degree_train, dtype=torch.long)
+at_degree_train_hist = torch.bincount(at_degree_tensor)
+
+#at_degree_val_hist = torch.tensor(np.histogram(at_degree_val, bins=range(0, max(at_degree_val)+1)))
+
 epochs = 15
-model = torch_GCN.GCN(32, 64, 1).to(device)
+#model = torch_GCN.PNAConv(32, 64, 1, at_degree_train_hist).to(device)
+model = torch_Gate.GatedGraphConv(16, 64, 1).to(device)
 model.fit(train_loader, val_loader, device, epochs=epochs)
 
 
@@ -130,7 +184,8 @@ with torch.no_grad():
         batch = batch.to(device)  # Move each mini-batch to the GPU/MPS/CPU individually
         pred = model(batch)
         predictions.append(pred)
-        measured.append((batch.y-4)/4 )
+        #measured.append((batch.y-4)/4 )
+        measured.append(batch.y)
 
 
 
@@ -139,6 +194,11 @@ all_preds = all_preds.detach().cpu().numpy().flatten()
 
 all_measured = torch.cat(measured, dim=0)
 all_measured = all_measured.detach().cpu().numpy().flatten()
+
+a, b = np.polyfit(all_preds, all_measured, 1)
+r2_calibrated = r2_score(all_measured, a * all_preds + b)
+
+print(f"Optimal Rescaled R2: {r2_calibrated:.4f}")
 
 r2 = r2_score(all_measured, all_preds)
 rmse = np.sqrt(mean_squared_error(all_measured, all_preds))
