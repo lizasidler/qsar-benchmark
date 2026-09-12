@@ -1,7 +1,7 @@
 # qsar-benchmark
-Benchmarking classical ML and GNN approaches (Random Forest, MLP, GCN) for molecular structure-activity relationship prediction
+Benchmarking classical ML (Random Forest, XGBoost, MLP) and GNN approaches (SAGEC, GINConv, GraphConv, GatedGraphConv, ResGatedGraphConv, GATConv, NNConv, GINE, Attention from torch_geometric) for molecular quantitive structure-activity relationship prediction. All approaches were benchmarked for regression task. Additionally, 
 
-
+GatedGraphConv provided highest score 
 
 4 different ML apploaches were investigated:
 
@@ -11,16 +11,19 @@ Benchmarking classical ML and GNN approaches (Random Forest, MLP, GCN) for molec
 
 
 
-datasets:
+## Datasets:
 
--- pure Morgan fingerprints only
---molecular descriptors (...)
--- FP + molecular descriptors (combination of the first two sets)
+* ChEMBL database
+* Target: D(2) dopamine receptor, 'CHEMBL217'
+* Activities of 8200 candidates (90% for training, 10% to validate)
 
-Molecular graphs datasets
--- node represented by atom types only, no edge features
--- node represented by atom types and atomic descriptors, no edge features
--- node represented by atom types and atomic descriptors, edge features of bond order
+We benchmarked different ML approaches in combination with the following molecular data representations: 
+* Morgan fingerprints
+* Molecular descriptors
+* Molecular graphs (node features depend on atom types and/or atomic descriptors + with or without edge features describing bond order )
+
+## Notebooks:
+
 
 The scores from benchmarking are collected in table : 
 
