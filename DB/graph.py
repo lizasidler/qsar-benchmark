@@ -23,6 +23,7 @@ con.execute("LOAD sqlite;")
 con.execute("ATTACH 'chembl_37.db' AS chembl (TYPE sqlite);")
 
 df = con.execute(sql_comm).df()
+print(len(df))
 
 df['mol'] = df['canonical_smiles'].apply(Chem.MolFromSmiles)
 

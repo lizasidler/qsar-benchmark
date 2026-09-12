@@ -5,3 +5,4 @@ __pycache__/
 *.db
 DB/*.db
 data_collection/
+.DS_Store
