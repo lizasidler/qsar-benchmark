@@ -24,9 +24,6 @@ con.execute("ATTACH 'chembl_37.db' AS chembl (TYPE sqlite);")
 
 df = con.execute(sql_comm).df()
 
-#mol = Chem.MolFromSmiles(df['canonical_smiles'][0])
-#Draw.ShowMol(mol)
-
 df['mol'] = df['canonical_smiles'].apply(Chem.MolFromSmiles)
 
 df['max_ch'] = df['mol'].apply(desc.MaxPartialCharge)
@@ -81,7 +78,7 @@ for mol, activity in zip(df['mol'], df['av_act']):
         deg = atom.GetDegree() # Number of directly bonded neighbors
         at_feat_list.append(deg)
 
-        hydrid = atom.GetHybridization() # Returns RDKit hybridization type (e.g., sp ...)
+        hydrid = atom.GetHybridization()
         at_feat_list.append(int(hydrid))
 
         p_charge = atom.GetProp("_GasteigerCharge")
@@ -94,22 +91,22 @@ for mol, activity in zip(df['mol'], df['av_act']):
         charge = atom.GetFormalCharge() # Formal charge on the atom.
         at_feat_list.append(charge)
 
-        arom = atom.GetIsAromatic() # Boolean indicating aromaticity.
+        arom = atom.GetIsAromatic()
         at_feat_list.append(arom*1.0)
 
-        Hcount = atom.GetTotalNumHs() # Count of connected hydrogens.
+        Hcount = atom.GetTotalNumHs()
         at_feat_list.append(Hcount)
 
-        ring = atom.IsInRing() # Count of connected hydrogens.
+        ring = atom.IsInRing()
         at_feat_list.append(ring*1.0)
 
-        ring_5 = atom.IsInRingSize(5) # Count of connected hydrogens.
+        ring_5 = atom.IsInRingSize(5)
         at_feat_list.append(ring_5*1.0)
 
-        ring_6 = atom.IsInRingSize(6) # Count of connected hydrogens.
+        ring_6 = atom.IsInRingSize(6)
         at_feat_list.append(ring_6*1.0)
 
-        chiral = CHIRAL_TAG_DICT.get(str(atom.GetChiralTag())) # Count of connected hydrogens.
+        chiral = CHIRAL_TAG_DICT.get(str(atom.GetChiralTag()))
         at_feat_list.append(chiral)
 
         mol_feat_list.append(at_feat_list)

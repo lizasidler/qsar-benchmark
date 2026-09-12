@@ -26,9 +26,6 @@ con.execute("ATTACH 'chembl_37.db' AS chembl (TYPE sqlite);")
 
 df = con.execute(sql_comm).df()
 
-#mol = Chem.MolFromSmiles(df['canonical_smiles'][0])
-#Draw.ShowMol(mol)
-
 df['mol'] = df['canonical_smiles'].apply(Chem.MolFromSmiles)
 
 df['max_ch'] = df['mol'].apply(desc.MaxPartialCharge)

@@ -12,7 +12,7 @@ def analysis(self, train_loader, val_loader, device):
 
 	with torch.no_grad():
 	    for batch in train_loader:
-	        batch = batch.to(device)  # Move each mini-batch to the GPU/MPS/CPU individually
+	        batch = batch.to(device)
 	        pred = self(batch)
 	        predictions.append(pred)
 	        measured.append(batch.y)
@@ -37,7 +37,7 @@ def analysis(self, train_loader, val_loader, device):
 
 	with torch.no_grad():
 	    for batch in val_loader:
-	        batch = batch.to(device)  # Move each mini-batch to the GPU/MPS/CPU individually
+	        batch = batch.to(device)
 	        pred = self(batch)
 	        predictions.append(pred)
 	        measured.append(batch.y)
@@ -126,13 +126,13 @@ class SAGEC(nn.Module):
 		super().__init__()
 		self.embed_at_types = nn.Embedding(120, input_dim)
 		self.conv1 = gnn.Sequential('x, edge_index', [
-			(gnn.GCNConv(input_dim, hidden_dim_1), 'x, edge_index -> x'),
+			(gnn.SAGEConv(input_dim, hidden_dim_1), 'x, edge_index -> x'),
 			(nn.LayerNorm(hidden_dim_1), 'x -> x'),
 			(nn.SiLU(), 'x -> x'),
 			])
 
 		self.conv2 = gnn.Sequential('x, edge_index', [
-			(gnn.GCNConv(hidden_dim_1, hidden_dim_2), 'x, edge_index -> x'),
+			(gnn.SAGEConv(hidden_dim_1, hidden_dim_2), 'x, edge_index -> x'),
 			(nn.LayerNorm(hidden_dim_2), 'x -> x'),
 			(nn.SiLU(), 'x -> x'),
 			])

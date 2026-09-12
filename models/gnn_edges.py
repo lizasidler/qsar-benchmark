@@ -12,7 +12,7 @@ def analysis(self, train_loader, val_loader, device):
 
 	with torch.no_grad():
 	    for batch in train_loader:
-	        batch = batch.to(device)  # Move each mini-batch to the GPU/MPS/CPU individually
+	        batch = batch.to(device)
 	        pred = self(batch)
 	        predictions.append(pred)
 	        measured.append(batch.y)
@@ -37,7 +37,7 @@ def analysis(self, train_loader, val_loader, device):
 
 	with torch.no_grad():
 	    for batch in val_loader:
-	        batch = batch.to(device)  # Move each mini-batch to the GPU/MPS/CPU individually
+	        batch = batch.to(device)
 	        pred = self(batch)
 	        predictions.append(pred)
 	        measured.append(batch.y)
@@ -99,7 +99,7 @@ def fit(self, train_loader, val_loader, device, epochs=100):
 class GatedEdge(gnn.MessagePassing):
 
 	def __init__(self, hidden_dim, num_steps=2):
-		super().__init__(aggr='add')  # "Add" aggregation (Step 5).
+		super().__init__(aggr='add')
 
 		self.edge_weight = nn.Sequential(nn.Linear(4, 1), nn.Tanh())
 		self.gru = nn.GRUCell(hidden_dim, hidden_dim)
@@ -344,7 +344,6 @@ class GINE(nn.Module):
 
 		x = torch.cat([x_mean, x_max, x_add], dim=-1)
 
-		#print("Pooled vector variance across batch:", x.std(dim=0).mean().item())
 		x = self.layer_gnn_h(x)
 		out = self.layer_h_out(x)
 
