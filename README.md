@@ -1,15 +1,10 @@
 # qsar-benchmark
-Benchmarking classical ML (Random Forest, XGBoost, MLP) and GNN approaches (SAGEC, GINConv, GraphConv, GatedGraphConv, ResGatedGraphConv, GATConv, NNConv, GINE, Attention from torch_geometric) for molecular quantitive structure-activity relationship prediction. All approaches were benchmarked for regression task. Additionally, 
 
-GatedGraphConv provided highest score 
+Benchmarking classical ML (Random Forest, XGBoost, MLP) and GNN approaches (SAGEC, GINConv, GraphConv, GatedGraphConv, ResGatedGraphConv, GATConv, NNConv, GINE, Attention) for molecular quantitive structure-activity relationship prediction. All approaches were benchmarked for regression task. Additionally, 
 
-4 different ML apploaches were investigated:
-
--- for both regression and classification, Random Forest and XGboost were trained (using Ski and XGBoost Python librarier)] 
--- for regression, simple MLP NN was constructed and trained
--- for regression, GNN was constructed and different models were testes (...) (using PyTorch and PyTorch Geometric)
-
-
+GatedGraphConv provided the highest score among the explored GNN (0.69).
+Random Forest resulted in the 
+The MLP provided the highest overall score of 0.72 for 
 
 ## Datasets:
 
@@ -22,8 +17,17 @@ We benchmarked different ML approaches in combination with the following molecul
 * Molecular descriptors
 * Molecular graphs (node features depend on atom types and/or atomic descriptors + with or without edge features describing bond order )
 
-## Notebooks:
+## Structure:
+
+* We provide JupiterNotebooks in the folder `notebooks` which contain all of the benchmarks. 
+* The NN designed with PyTorch and torch_geometric are collected in the folder `models`.
+* In the folder `DB`, all the scripts used to construct datasets from the ChEMBL database are stored. The datasets are too large to store 
 
 
-The scores from benchmarking are collected in table : 
+## Python libraries:
+* Random Forest and XGboost were trained using scikit-learn and XGBoost, respectively;
+* MLP was implemented using PyTorch;
+* GNN were constructed using PyTorch with torch_geometric
+
+All scores collected with the presented benchmarking are collected in table : 
 
