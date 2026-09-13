@@ -57,7 +57,7 @@ def analysis(self, train_loader, val_loader, device):
 	print(f"Val MAE:      ±{mae:.3f}")
 
 
-def fit(self, train_loader, val_loader, device, epochs=100):
+def fit(self, train_loader, val_loader, device, epochs=100, tol=0.4):
 
 	self.train()
 	running_train_loss = 0.0
@@ -94,6 +94,9 @@ def fit(self, train_loader, val_loader, device, epochs=100):
 
 		running_val_loss /= len(val_loader.dataset)
 		self.val_loss.append(running_val_loss)
+
+		if t>50 and np.std(self.val_loss[-50:-1])<tol:
+			break
 
 
 class GatedEdge(gnn.MessagePassing):
