@@ -1,41 +1,44 @@
 # qsar-benchmark
 
-Benchmarking classical ML (Random Forest, XGBoost, MLP) and GNN approaches (SAGEC, GINConv, GraphConv, GatedGraphConv, ResGatedGraphConv, GATConv, NNConv, GINE, Attention) for molecular quantitive structure-activity relationship prediction. All approaches were benchmarked for regression task. Additionally, 
+Benchmarking classical ML models (Random Forest, XGBoost, MLP) and GNN architectures (`SAGEConv`, `GINConv`, `GraphConv`, `GatedGraphConv`, `ResGatedGraphConv`, `GATConv`, `NNConv`, `GINE`, `Attention`) for quantitative structure-activity relationship (QSAR) prediction. Additionally, Random Forest, XGBoost were benchmarked for the classification task. All approaches were evaluated on a regression task predicting molecular activity. Additionally, Random Forest and XGBoost were evaluated on a classification task.
 
-GatedGraphConv provided the highest score among the explored GNN (0.69).
-Random Forest resulted in the 
-The MLP provided the highest overall score of 0.72 for 
+### Key Results (Regression)
 
-## Datasets:
+* Both Random Forest and XGBoost achieved an r2 score of 0.67 with Morgan fingerprints.
+* `GatedGraphConv` achieved the highest performance among the evaluated GNN architectures with an r2 score of 0.66.
+* The MLP provided the highest overall r2 score of 0.72 using Morgan fingerprints and molecular descriptors together.
 
-* ChEMBL database
-* Target: D(2) dopamine receptor, 'CHEMBL217'
-* Activities of 8200 candidates (90% for training, 10% to validate)
+## Datasets & Molecular Representations
 
-We benchmarked different ML approaches in combination with the following molecular data representations: 
+* **Database:** ChEMBL
+* **Target:** D(2) dopamine receptor, 'CHEMBL217'
+* **Dataset Size:** 8200 candidates (90% for training, 10% to validate)
+
+We benchmarked different ML across three distinct molecular data representations: 
 * Morgan fingerprints (FP)
 * Molecular descriptors (MD)
-* Molecular graphs (node features depend on atom types and/or atomic descriptors + with or without edge features describing bond order )
+* Molecular graphs: Node features encode atom types and/or atomic descriptors; optionally, edge features capture bond order
 
-## Structure:
+## Repository Structure
 
-* We provide JupiterNotebooks in the folder `notebooks` which contain all of the benchmarks. 
-* The custom NN designed with PyTorch and pytorch_geometric are collected in the folder `models`.
-* In the folder `DB`, all the scripts used to construct datasets from the ChEMBL database are stored. The datasets are too large to store in git.
+* `notebooks/` — Jupyter notebooks containing all benchmarking experiments and workflows.
+* `models/` — Custom PyTorch and PyTorch Geometric (PyG) NN architectures.
+* `DB/` — Data retrieval and processing scripts for building datasets from ChEMBL. Raw dataset are too large to store in Git.
 
-### Notebooks:
+## Notebooks:
 
-Each notebook for each model contains the end-to-end workflow with data loading, model init, model training, loss plotting, and metrics evaluations (R2 score, mean squared error, mean absolute error)
+Each notebook contains an end-to-end workflow covering data loading, model initialization, training, loss visualization, and metric evaluation (R2 score, mean squared error, mean absolute error).
 
-ML pipeline with:
-* The Random Forest and XGBoost classifiers trained on Morgan fingerprints in `random_forest_xgboost_classifiers`
+Hyperparameters (such as layer depth, hidden dimensions, `n_estimators`, and `max_depth`) were tuned across models to provide the best score.
+
+* `random_forest_xgboost_classifiers/` - The Random Forest and XGBoost classifiers trained on Morgan fingerprints.
 
 | Model | Val R2 score |
 | :---           | :---    |
 | Random Forest  | 0.80    |
 | XGBoost        | 0.82    |
   
-* The Random Forest and XGBoost regression models trained on Morgan fingerprints, molecular descriptors, and their combo in `random_forest_xgboost_regression`. 
+* `random_forest_xgboost_regression/` - The Random Forest and XGBoost regression models trained on Morgan fingerprints (FP), molecular descriptors (MD), and their combination (FP+MD).
 
 | Model | Dataset | Val R2 score |
 | :---           | :---        | :---    |         
@@ -46,7 +49,7 @@ ML pipeline with:
 | XGBoost        | MD          | 0.51    |
 | XGBoost        | FP + MD     | 0.63    |
 
-* The custom MLP regression models trained on Morgan fingerprints, molecular descriptors, and their combo in `MLP_regression`.
+* `MLP_regression/` - The custom MLP regression models trained on Morgan fingerprints (MF), molecular descriptors (MD), and their combination (FP+MD).
 
 | Model | Dataset |Val R2 score |
 | :---  | :---        | :---    |         
@@ -55,35 +58,35 @@ ML pipeline with:
 | MLP1  | FP + MD     | 0.70    |
 | MLP2  | FP + MD     | 0.73    |
 
-* The custom GNN regression models trained on graphs datasets with atom-types node features in `GNN_regression`. Different convolutional layers are benchmarked.
+* `GNN_regression/` - The custom GNN regression models trained on the graph dataset with atom-types node features. Different types of convolutional layers are benchmarked.
 
 | Model(layers)      | Val R2 score |
 | :---               | :---    |         
-| SAGEConv           | 0.24    |
-| GINConv            | 0.23    |
-| GraphConv          | 0.47    |
-| GatedGraphConv     | 0.62    |
-| ResGatedGraphConv  | 0.51    |
-| GATConv            | 0.40    |
+| SAGEConv           | 0.42    |
+| GINConv            | 0.46    |
+| GraphConv          | 0.52    |
+| GatedGraphConv     | 0.64    |
+| ResGatedGraphConv  | 0.54    |
+| GATConv            | 0.52    |
 
 
-* The custom GNN regression model with GatedGraphConv layers with atom-types and other atom specific (hybridization type, charge, H-count...) node features in `Gated_GNN_regression`.
+* `Gated_GNN_regression/` - The custom GNN regression model with GatedGraphConv layers trained on the graph dataset with atom-types and other atom specific (hybridization type, charge, H-count...) node features.
 
 Val R2 score:
 0.66
 
-* The custom GNN regression model with atom-types and other atom specific (hybridization type, charge, H-count...) node features and bond-type edge features in `GNN_with_edges_regression`. Different convolutional layers are benchmarked.
+* `GNN_with_edges_regression/` - The custom GNN regression model trained on the graph dataset with atom-types and other atom specific (hybridization type, charge, H-count...) node features and bond-type edge features. Different types of convolutional layers are benchmarked.
 
 | Model(layers)     | Val R2 score |
 | :---              | :---    |         
 | GatedEdgeConv     | 0.6     |
-| NNConv            | 0.5     |
-| GINE              | 0.61    |
-| Attention         | 0.55    |
+| NNConv            | 0.56    |
+| GINE              | 0.63    |
+| Attention         | 0.6    |
 
 
-## Python libraries:
-* Random Forest and XGboost were trained using scikit-learn and XGBoost, respectively;
-* MLP was implemented using PyTorch;
-* GNN were constructed using PyTorch with torch_geometric
+## Dependencies & Libraries
 
+* **Classical ML:** Random Forest models were trained using `scikit-learn`; XGBoost models were trained using `xgboost`.
+* **Deep Learning:** MLP were built with `torch`.
+* **GNN:** All GNN architectures were constructed using `torch` and `torch_geometric`.
