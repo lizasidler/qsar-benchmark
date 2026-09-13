@@ -25,7 +25,7 @@ We benchmarked different ML across three distinct molecular data representations
 * `models/` — Custom PyTorch and PyTorch Geometric (PyG) NN architectures.
 * `DB/` — Data retrieval and processing scripts for building datasets from ChEMBL. Raw dataset are too large to store in Git.
 
-## Notebooks:
+## Notebooks & Benchmark results (R2 scores):
 
 Each notebook contains an end-to-end workflow covering data loading, model initialization, training, loss visualization, and metric evaluation (R2 score, mean squared error, mean absolute error).
 
