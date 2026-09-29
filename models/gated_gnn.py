@@ -4,63 +4,9 @@ import torch_geometric.nn as gnn
 from tqdm import tqdm
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import numpy as np
+from .gnn_base_class import BaseClass
 
-def analysis(self, train_loader, val_loader, device):
-
-	predictions = []
-	measured = []
-
-	with torch.no_grad():
-	    for batch in train_loader:
-	        batch = batch.to(device)  # Move each mini-batch to the GPU/MPS/CPU individually
-	        pred = self(batch)
-	        predictions.append(pred)
-	        measured.append(batch.y)
-
-	all_preds = torch.cat(predictions, dim=0)
-	all_preds = all_preds.detach().cpu().numpy().flatten()
-
-	all_measured = torch.cat(measured, dim=0)
-	all_measured = all_measured.detach().cpu().numpy().flatten()
-
-	r2 = r2_score(all_measured, all_preds)
-	rmse = np.sqrt(mean_squared_error(all_measured, all_preds))
-	mae = mean_absolute_error(all_measured, all_preds)
-
-	print(f"R² Train Score: {r2:.3f}")
-	print(f"Train RMSE:     ±{rmse:.3f}")
-	print(f"Train MAE:      ±{mae:.3f}")
-
-
-	predictions = []
-	measured = []
-
-	with torch.no_grad():
-	    for batch in val_loader:
-	        batch = batch.to(device)  # Move each mini-batch to the GPU/MPS/CPU individually
-	        pred = self(batch)
-	        predictions.append(pred)
-	        measured.append(batch.y)
-
-	all_preds = torch.cat(predictions, dim=0)
-	all_preds = all_preds.detach().cpu().numpy().flatten()
-
-	all_measured = torch.cat(measured, dim=0)
-	all_measured = all_measured.detach().cpu().numpy().flatten()
-
-	r2 = r2_score(all_measured, all_preds)
-	rmse = np.sqrt(mean_squared_error(all_measured, all_preds))
-	mae = mean_absolute_error(all_measured, all_preds)
-
-	print(f"R² Val Score: {r2:.3f}")
-	print(f"Val RMSE:     ±{rmse:.3f}")
-	print(f"Val MAE:      ±{mae:.3f}")
-
-
-
-class GatedGraphConv(nn.Module):
-
-	analysis = analysis
+class GatedGraphConv(BaseClass):
 
 	def __init__(self, hidden_dim, hidden_dim_3, output_dim):
 
@@ -131,44 +77,4 @@ class GatedGraphConv(nn.Module):
 		out = self.layer_h_out(x)
 
 		return out
-
-
-	def fit(self, train_loader, val_loader, device, epochs=100):
-
-		self.train()
-		running_train_loss = 0.0
-		running_val_loss = 0.0
-
-
-		for t in tqdm(range(epochs)):
-
-			for batch in train_loader:
-				batch = batch.to(device)
-				self.optimizer.zero_grad()
-				pred = self(batch)
-				train_y = batch.y
-				loss = self.loss_fn(pred, train_y)
-				loss.backward()
-				self.optimizer.step()
-
-				running_train_loss += loss.item() * batch.x.size(0)
-
-			running_train_loss /= len(train_loader.dataset)
-			self.train_loss.append(running_train_loss)
-
-
-			self.eval()
-
-			with torch.no_grad():
-			    for batch in val_loader:
-			    	batch = batch.to(device)
-
-			    	pred = self(batch)
-			    	loss = self.loss_fn(pred, batch.y)
-
-			    	running_val_loss += loss.item() * batch.x.size(0)
-
-			running_val_loss /= len(val_loader.dataset)
-			self.val_loss.append(running_val_loss)
-
 
