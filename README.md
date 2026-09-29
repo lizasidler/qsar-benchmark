@@ -75,8 +75,9 @@ Hyperparameters (such as layer depth, hidden dimensions, `n_estimators`, and `ma
 
 * `Gated_GNN_regression/` - The custom GNN regression model with GatedGraphConv layers trained on the graph dataset with atom-types and other atom specific (hybridization type, charge, H-count...) node features.
 
-Val R2 score:
-0.66
+| R2 score | RMSE | MSA |
+| :---    |:---    | :---    |
+| 0.66     | 0.58 | 0.42 |
 
 * `GNN_with_edges_regression/` - The custom GNN regression model trained on the graph dataset with atom-types and other atom specific (hybridization type, charge, H-count...) node features and bond-type edge features. Different types of convolutional layers are benchmarked.
 
