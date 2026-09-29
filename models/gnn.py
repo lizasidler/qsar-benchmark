@@ -5,124 +5,122 @@ from tqdm import tqdm
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import numpy as np
 
-def analysis(self, train_loader, val_loader, device):
+class BaseClass(nn.Module):
 
-	predictions = []
-	measured = []
+	def analysis(self, train_loader, val_loader, device):
 
-	with torch.no_grad():
-	    for batch in train_loader:
-	        batch = batch.to(device)
-	        pred = self(batch)
-	        predictions.append(pred)
-	        measured.append(batch.y)
+		predictions = []
+		measured = []
 
-	all_preds = torch.cat(predictions, dim=0)
-	all_preds = all_preds.detach().cpu().numpy().flatten()
+		with torch.no_grad():
+		    for batch in train_loader:
+		        batch = batch.to(device)
+		        pred = self(batch)
+		        predictions.append(pred)
+		        measured.append(batch.y)
 
-	all_measured = torch.cat(measured, dim=0)
-	all_measured = all_measured.detach().cpu().numpy().flatten()
+		all_preds = torch.cat(predictions, dim=0)
+		all_preds = all_preds.detach().cpu().numpy().flatten()
 
-	r2 = r2_score(all_measured, all_preds)
-	rmse = np.sqrt(mean_squared_error(all_measured, all_preds))
-	mae = mean_absolute_error(all_measured, all_preds)
+		all_measured = torch.cat(measured, dim=0)
+		all_measured = all_measured.detach().cpu().numpy().flatten()
 
-	print(f"R² Train Score: {r2:.3f}")
-	print(f"Train RMSE:     ±{rmse:.3f}")
-	print(f"Train MAE:      ±{mae:.3f}")
+		r2 = r2_score(all_measured, all_preds)
+		rmse = np.sqrt(mean_squared_error(all_measured, all_preds))
+		mae = mean_absolute_error(all_measured, all_preds)
 
-
-	predictions = []
-	measured = []
-
-	with torch.no_grad():
-	    for batch in val_loader:
-	        batch = batch.to(device)
-	        pred = self(batch)
-	        predictions.append(pred)
-	        measured.append(batch.y)
-
-	all_preds = torch.cat(predictions, dim=0)
-	all_preds = all_preds.detach().cpu().numpy().flatten()
-
-	all_measured = torch.cat(measured, dim=0)
-	all_measured = all_measured.detach().cpu().numpy().flatten()
-
-	r2 = r2_score(all_measured, all_preds)
-	rmse = np.sqrt(mean_squared_error(all_measured, all_preds))
-	mae = mean_absolute_error(all_measured, all_preds)
-
-	print(f"R² Val Score: {r2:.3f}")
-	print(f"Val RMSE:     ±{rmse:.3f}")
-	print(f"Val MAE:      ±{mae:.3f}")
+		print(f"R² Train Score: {r2:.3f}")
+		print(f"Train RMSE:     ±{rmse:.3f}")
+		print(f"Train MAE:      ±{mae:.3f}")
 
 
-def fit(self, train_loader, val_loader, device, epochs=100, tol=0.4):
-
-	self.train()
-	running_train_loss = 0.0
-	running_val_loss = 0.0
-
-
-	for t in tqdm(range(epochs)):
-
-		for batch in train_loader:
-			batch = batch.to(device)
-			self.optimizer.zero_grad()
-			pred = self(batch)
-			train_y = batch.y
-			loss = self.loss_fn(pred, train_y)
-			loss.backward()
-			self.optimizer.step()
-
-			running_train_loss += loss.item() * batch.x.size(0)
-
-		running_train_loss /= len(train_loader.dataset)
-		self.train_loss.append(running_train_loss)
-
-
-		self.eval()
+		predictions = []
+		measured = []
 
 		with torch.no_grad():
 		    for batch in val_loader:
-		    	batch = batch.to(device)
+		        batch = batch.to(device)
+		        pred = self(batch)
+		        predictions.append(pred)
+		        measured.append(batch.y)
 
-		    	pred = self(batch)
-		    	loss = self.loss_fn(pred, batch.y)
+		all_preds = torch.cat(predictions, dim=0)
+		all_preds = all_preds.detach().cpu().numpy().flatten()
 
-		    	running_val_loss += loss.item() * batch.x.size(0)
+		all_measured = torch.cat(measured, dim=0)
+		all_measured = all_measured.detach().cpu().numpy().flatten()
 
-		running_val_loss /= len(val_loader.dataset)
-		self.val_loss.append(running_val_loss)
+		r2 = r2_score(all_measured, all_preds)
+		rmse = np.sqrt(mean_squared_error(all_measured, all_preds))
+		mae = mean_absolute_error(all_measured, all_preds)
 
-		if t>50 and np.std(self.val_loss[-50:-1])<tol:
-			break
+		print(f"R² Val Score: {r2:.3f}")
+		print(f"Val RMSE:     ±{rmse:.3f}")
+		print(f"Val MAE:      ±{mae:.3f}")
 
 
-def ext_forward(self, batch):
-	x, edge_index, _batch  = batch.x, batch.edge_index, batch.batch
-	
-	x = self.embed_at_types(x.long())
-	x0 = self.conv1(x, edge_index)
-	x1 = self.conv2(x0, edge_index)
+	def fit(self, train_loader, val_loader, device, epochs=100, tol=0.4):
 
-	x_all = torch.cat([x, x1], dim=-1)
-	x_mean = gnn.global_mean_pool(x_all, _batch)
-	x_max = gnn.global_max_pool(x_all, _batch)
-	x_add = gnn.global_add_pool(x_all, _batch)
+		self.train()
+		running_train_loss = 0.0
+		running_val_loss = 0.0
 
-	x = torch.cat([x_mean, x_max, x_add], dim=-1)
 
-	x = self.layer_gnn_h(x)
-	out = self.layer_h_out(x)
+		for t in tqdm(range(epochs)):
 
-	return out
+			for batch in train_loader:
+				batch = batch.to(device)
+				self.optimizer.zero_grad()
+				pred = self(batch)
+				train_y = batch.y
+				loss = self.loss_fn(pred, train_y)
+				loss.backward()
+				self.optimizer.step()
 
-class SAGEC(nn.Module):
+				running_train_loss += loss.item() * batch.x.size(0)
 
-	fit = fit
-	analysis = analysis
-	forward = ext_forward
+			running_train_loss /= len(train_loader.dataset)
+			self.train_loss.append(running_train_loss)
+
+
+			self.eval()
+
+			with torch.no_grad():
+			    for batch in val_loader:
+			    	batch = batch.to(device)
+
+			    	pred = self(batch)
+			    	loss = self.loss_fn(pred, batch.y)
+
+			    	running_val_loss += loss.item() * batch.x.size(0)
+
+			running_val_loss /= len(val_loader.dataset)
+			self.val_loss.append(running_val_loss)
+
+			if t>50 and np.std(self.val_loss[-50:-1])<tol:
+				break
+
+
+	def ext_forward(self, batch):
+		x, edge_index, _batch  = batch.x, batch.edge_index, batch.batch
+		
+		x = self.embed_at_types(x.long())
+		x0 = self.conv1(x, edge_index)
+		x1 = self.conv2(x0, edge_index)
+
+		x_all = torch.cat([x, x1], dim=-1)
+		x_mean = gnn.global_mean_pool(x_all, _batch)
+		x_max = gnn.global_max_pool(x_all, _batch)
+		x_add = gnn.global_add_pool(x_all, _batch)
+
+		x = torch.cat([x_mean, x_max, x_add], dim=-1)
+
+		x = self.layer_gnn_h(x)
+		out = self.layer_h_out(x)
+
+		return out
+
+class SAGEC(BaseClass):
 
 	def __init__(self, input_dim, hidden_dim_1, hidden_dim_2, hidden_dim_3, output_dim):
 
@@ -153,11 +151,7 @@ class SAGEC(nn.Module):
 
 
 
-class GINConv(nn.Module):
-
-	fit = fit
-	analysis = analysis
-	forward = ext_forward
+class GINConv(BaseClass):
 
 	def __init__(self, input_dim, hidden_dim_1, hidden_dim_2, hidden_dim_3, output_dim):
 
@@ -180,11 +174,7 @@ class GINConv(nn.Module):
 		
 
 
-class GraphConv(nn.Module):
-
-	fit = fit
-	analysis = analysis
-	forward = ext_forward
+class GraphConv(BaseClass):
 
 	def __init__(self, input_dim, hidden_dim_1, hidden_dim_2, hidden_dim_3, output_dim):
 
@@ -214,10 +204,7 @@ class GraphConv(nn.Module):
 		self.val_loss = []
 
 
-class GatedGraphConv(nn.Module):
-
-	fit = fit
-	analysis = analysis
+class GatedGraphConv(BaseClass):
 
 	def __init__(self, input_dim, hidden_dim_1, hidden_dim_3, output_dim):
 
@@ -270,11 +257,7 @@ class GatedGraphConv(nn.Module):
 
 
 
-class ResGatedGraphConv(nn.Module):
-
-	fit = fit
-	analysis = analysis
-	forward = ext_forward
+class ResGatedGraphConv(BaseClass):
 
 	def __init__(self, input_dim, hidden_dim_1, hidden_dim_2, hidden_dim_3, output_dim):
 
@@ -306,11 +289,7 @@ class ResGatedGraphConv(nn.Module):
 
 
 
-class GATConv(nn.Module):
-
-	fit = fit
-	analysis = analysis
-	forward = ext_forward
+class GATConv(BaseClass):
 
 	def __init__(self, input_dim, hidden_dim_1, hidden_dim_2, hidden_dim_3, output_dim):
 
