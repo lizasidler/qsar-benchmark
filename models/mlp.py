@@ -33,8 +33,6 @@ class BaseClass(nn.Module):
 
 class MLP_1(BaseClass):
 
-	#analysis = analysis
-
 	def __init__(self, input_dim, hidden_dim_1, hidden_dim_2, hidden_dim_3, output_dim):
 
 		super().__init__()
@@ -100,8 +98,6 @@ class MLP_1(BaseClass):
 
 
 class MLP_2(BaseClass):
-
-	#analysis = analysis
 
 	def __init__(self, MLP_1_dim, MLP_2_dim, comb_dim):
 
