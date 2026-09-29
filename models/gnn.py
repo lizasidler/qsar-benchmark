@@ -101,7 +101,7 @@ class BaseClass(nn.Module):
 				break
 
 
-	def ext_forward(self, batch):
+	def forward(self, batch):
 		x, edge_index, _batch  = batch.x, batch.edge_index, batch.batch
 		
 		x = self.embed_at_types(x.long())
