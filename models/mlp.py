@@ -4,35 +4,36 @@ from tqdm import tqdm
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import numpy as np
 
+class BaseClass(nn.Module):
 
-def analysis(self, train, act_train, val, act_val, device):
+	def analysis(self, train, act_train, val, act_val, device):
 
-	pred = self(torch.tensor(train, dtype=torch.float32).to(device))
-	pred = pred.cpu().detach().numpy()
+		pred = self(torch.tensor(train, dtype=torch.float32).to(device))
+		pred = pred.cpu().detach().numpy()
 
-	r2 = r2_score(act_train, pred)
-	rmse = np.sqrt(mean_squared_error(act_train, pred))
-	mae = mean_absolute_error(act_train, pred)
+		r2 = r2_score(act_train, pred)
+		rmse = np.sqrt(mean_squared_error(act_train, pred))
+		mae = mean_absolute_error(act_train, pred)
 
-	print(f"R² Train Score: {r2:.3f}")
-	print(f"Train RMSE:     ±{rmse:.3f}")
-	print(f"Train MAE:      ±{mae:.3f}")
+		print(f"R² Train Score: {r2:.3f}")
+		print(f"Train RMSE:     ±{rmse:.3f}")
+		print(f"Train MAE:      ±{mae:.3f}")
 
-	pred = self(torch.tensor(val, dtype=torch.float32).to(device))
-	pred = pred.cpu().detach().numpy()
+		pred = self(torch.tensor(val, dtype=torch.float32).to(device))
+		pred = pred.cpu().detach().numpy()
 
-	r2 = r2_score(act_val, pred)
-	rmse = np.sqrt(mean_squared_error(act_val, pred))
-	mae = mean_absolute_error(act_val, pred)
+		r2 = r2_score(act_val, pred)
+		rmse = np.sqrt(mean_squared_error(act_val, pred))
+		mae = mean_absolute_error(act_val, pred)
 
-	print(f"R² Val Score: {r2:.3f}")
-	print(f"Val RMSE:     ±{rmse:.3f}")
-	print(f"Val MAE:      ±{mae:.3f}")
+		print(f"R² Val Score: {r2:.3f}")
+		print(f"Val RMSE:     ±{rmse:.3f}")
+		print(f"Val MAE:      ±{mae:.3f}")
 
 
-class MLP_1(nn.Module):
+class MLP_1(BaseClass):
 
-	analysis = analysis
+	#analysis = analysis
 
 	def __init__(self, input_dim, hidden_dim_1, hidden_dim_2, hidden_dim_3, output_dim):
 
@@ -98,9 +99,9 @@ class MLP_1(nn.Module):
 			self.val_loss.append(running_val_loss)
 
 
-class MLP_2(nn.Module):
+class MLP_2(BaseClass):
 
-	analysis = analysis
+	#analysis = analysis
 
 	def __init__(self, MLP_1_dim, MLP_2_dim, comb_dim):
 
