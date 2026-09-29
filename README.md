@@ -52,7 +52,7 @@ Hyperparameters such as layer depth, hidden dimensions, `n_estimators`, and `max
 | XGBoost        | MD          | 0.51    |
 | XGBoost        | FP + MD     | 0.63    |
 
-* `MLP_regression/` - The custom MLP regression models trained on Morgan fingerprints (MF), molecular descriptors (MD), and their combination (FP+MD).
+* `MLP_regression/` - The custom MLP regression models trained on Morgan fingerprints (FP), molecular descriptors (MD), and their combination (FP+MD).
 
 | Model | Dataset | r2 score | RMSE | MAE |
 | :---  | :---        | :---    |:---    | :---    |
