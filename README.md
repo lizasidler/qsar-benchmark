@@ -1,15 +1,15 @@
 # qsar-benchmark
 
 This project investigates how different machine learning (ML) approaches perform for quantitative structure–activity
-relationship (QSAR) prediction. Different molecular representations are also considered across selected models.
+relationship (QSAR) prediction. Different molecular representations are considered across selected models.
 
 The project benchmarks classical ML models, multilayer perceptrons (MLPs), and graph neural networks (GNNs) for predicting molecular activity. Random Forest and XGBoost are additionally evaluated on a binary classification task to predict whether molecules are active or inactive.
 
 ## Key Results
 
-* Both Random Forest and XGBoost regression models achieved an r2 score of 0.67 with Morgan fingerprints.
-* `GatedGraphConv` achieved the highest r2 score among the evaluated GNN architectures (0.66) when using atom-type and additional atom-level features.
-* Among the evaluated configurations, the MLP achieved the highest r2 score (0.73) using Morgan fingerprints + molecular descriptors.
+* Both Random Forest and XGBoost regression models achieved an R&sup2; score of 0.67 with Morgan fingerprints.
+* `GatedGraphConv` achieved the highest R&sup2; score among the evaluated GNN architectures (0.66) when using atom-type and additional atom-level features.
+* Among the evaluated configurations, the MLP achieved the highest R&sup2; score (0.73) using Morgan fingerprints + molecular descriptors.
 
 ## Datasets & Molecular Representations
 
@@ -30,7 +30,7 @@ We benchmarked different ML approaches across three distinct molecular represent
 
 ## Notebooks & Benchmark Results
 
-Notebooks contain an end-to-end workflow covering data loading, model initialisation, training, loss-versus-epoch plots, and evaluation using r2 score, root mean squared error (RMSE), and mean absolute error (MAE).
+Notebooks contain an end-to-end workflow covering data loading, model initialisation, training, loss-versus-epoch plots, and evaluation using R&sup2; score, root mean squared error (RMSE), and mean absolute error (MAE).
 
 Hyperparameters such as layer depth, hidden dimensions, `n_estimators`, and `max_depth` were tuned across models. Reported results are from the validation set; due to random initialisation and splitting, exact values may vary between runs.
 
@@ -43,7 +43,7 @@ Hyperparameters such as layer depth, hidden dimensions, `n_estimators`, and `max
   
 * `random_forest_xgboost_regression/` - The Random Forest and XGBoost regression models trained on Morgan fingerprints (FP), molecular descriptors (MD), and their combination (FP+MD).
 
-| Model | Dataset | r2 score |
+| Model | Dataset | R&sup2; score |
 | :---           | :---        | :---    |
 | Random Forest  | FP          | 0.67    |
 | Random Forest  | MD          | 0.57    |
@@ -54,7 +54,7 @@ Hyperparameters such as layer depth, hidden dimensions, `n_estimators`, and `max
 
 * `MLP_regression/` - The custom MLP regression models trained on Morgan fingerprints (FP), molecular descriptors (MD), and their combination (FP+MD).
 
-| Model | Dataset | r2 score | RMSE | MAE |
+| Model | Dataset | R&sup2; score | RMSE | MAE |
 | :---  | :---        | :---    |:---    | :---    |
 | MLP1  | FP          | 0.68    | 0.56 | 0.41 |
 | MLP1  | MD          | 0.50    | 0.71 | 0.53 |
@@ -63,7 +63,7 @@ Hyperparameters such as layer depth, hidden dimensions, `n_estimators`, and `max
 
 * `GNN_regression/` - The custom GNN regression models trained on the graph dataset with atom-type node features. Different types of convolutional layers are benchmarked.
 
-| Model(layers)      | r2 score | RMSE | MAE |
+| Model(layers)      | R&sup2; score | RMSE | MAE |
 | :---               | :---    |:---    | :---    |
 | SAGEConv           | 0.50    | 0.71 | 0.54 |
 | GINConv            | 0.44    | 0.74 | 0.55 |
@@ -75,13 +75,13 @@ Hyperparameters such as layer depth, hidden dimensions, `n_estimators`, and `max
 
 * `Gated_GNN_regression/` - The custom GNN regression model with GatedGraphConv layers trained on the graph dataset with atom-type and other atom specific (hybridization type, charge, H-count...) node features.
 
-| r2 score | RMSE | MAE |
+| R&sup2; score | RMSE | MAE |
 | :---    |:---    | :---    |
 | 0.66     | 0.58 | 0.42 |
 
 * `GNN_with_edges_regression/` - The custom GNN regression model trained on the graph dataset with atom-type and other atom specific (hybridization type, charge, H-count...) node features and bond-type edge features. Different types of convolutional layers are benchmarked.
 
-| Model(layers)     | r2 score | RMSE | MAE |
+| Model(layers)     | R&sup2; score | RMSE | MAE |
 | :---              | :---    |:---    | :---    |
 | GatedEdgeConv     | 0.64     | 0.6 | 0.44 |
 | NNConv            | 0.56    | 0.66 | 0.5 |
