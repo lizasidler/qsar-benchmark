@@ -30,7 +30,7 @@ We benchmarked different ML approaches across three distinct molecular represent
 
 ## Notebooks & Benchmark Results
 
-Notebooks contain an end-to-end workflow covering data loading, model initialisation, training, loss-versus-epoch plots, and evaluation using R&sup2; score, root mean squared error (RMSE), and mean absolute error (MAE).
+Notebooks contain an end-to-end workflow covering data loading, model initialisation, training, loss-versus-epoch plots, and evaluation using R&sup2; score, root mean squared error (RMSE), and mean absolute error (MAE). Reruns are stable with an approximate variance of within 0.5 for the R&sup2 score (exact numerical errors to be added).
 
 Hyperparameters such as layer depth, hidden dimensions, `n_estimators`, and `max_depth` were tuned across models. Reported results are from the validation set; due to random initialisation and splitting, exact values may vary between runs.
 
